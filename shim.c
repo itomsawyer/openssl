@@ -602,6 +602,7 @@ const EVP_MD *X_EVP_md5() {
 	return EVP_md5();
 }
 
+#ifndef TONGSUO_VERSION
 const EVP_MD *X_EVP_md4() {
 	return EVP_md4();
 }
@@ -609,6 +610,7 @@ const EVP_MD *X_EVP_md4() {
 const EVP_MD *X_EVP_ripemd160() {
 	return EVP_ripemd160();
 }
+#endif
 
 const EVP_MD *X_EVP_sha224() {
 	return EVP_sha224();

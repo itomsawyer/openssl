@@ -12,30 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build !tongsuo
+//go:build tongsuo && static
+// +build tongsuo,static
 
 package openssl
 
-/*
-#include <openssl/ssl.h>
-*/
+// #cgo linux CFLAGS: -Wno-deprecated-declarations -I/usr/local/opt/tongsuo/include
+// #cgo linux LDFLAGS: -L/usr/local/opt/tongsuo/lib64  -lssl -lcrypto
+// #cgo darwin CFLAGS: -I/usr/local/opt/openssl@1.1/include -I/usr/local/opt/openssl/include -Wno-deprecated-declarations
+// #cgo darwin LDFLAGS: -L/usr/local/opt/openssl@1.1/lib -L/usr/local/opt/openssl/lib -lssl -lcrypto
+// #cgo windows CFLAGS: -DWIN32_LEAN_AND_MEAN
+// #cgo windows pkg-config: --static libssl libcrypto
 import "C"
-import "runtime"
-
-// FIPSModeSet enables a FIPS 140-2 validated mode of operation.
-// https://wiki.openssl.org/index.php/FIPS_mode_set()
-func FIPSModeSet(mode bool) error {
-	runtime.LockOSThread()
-	defer runtime.UnlockOSThread()
-
-	var r C.int
-	if mode {
-		r = C.FIPS_mode_set(1)
-	} else {
-		r = C.FIPS_mode_set(0)
-	}
-	if r != 1 {
-		return errorFromErrorQueue()
-	}
-	return nil
-}

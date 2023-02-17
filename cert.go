@@ -281,36 +281,6 @@ func (c *Certificate) insecureSign(privKey PrivateKey, digest EVP_MD) error {
 	return nil
 }
 
-func getDigestFunction(digest EVP_MD) (md *C.EVP_MD) {
-	switch digest {
-	// please don't use these digest functions
-	case EVP_NULL:
-		md = C.X_EVP_md_null()
-	case EVP_MD5:
-		md = C.X_EVP_md5()
-	case EVP_SHA:
-		md = C.X_EVP_sha()
-	case EVP_SHA1:
-		md = C.X_EVP_sha1()
-	case EVP_DSS:
-		md = C.X_EVP_dss()
-	case EVP_DSS1:
-		md = C.X_EVP_dss1()
-	case EVP_RIPEMD160:
-		md = C.X_EVP_ripemd160()
-	case EVP_SHA224:
-		md = C.X_EVP_sha224()
-	// you actually want one of these
-	case EVP_SHA256:
-		md = C.X_EVP_sha256()
-	case EVP_SHA384:
-		md = C.X_EVP_sha384()
-	case EVP_SHA512:
-		md = C.X_EVP_sha512()
-	}
-	return md
-}
-
 // Add an extension to a certificate.
 // Extension constants are NID_* as found in openssl.
 func (c *Certificate) AddExtension(nid NID, value string) error {
