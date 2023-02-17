@@ -119,6 +119,7 @@ extern const EVP_MD *X_EVP_sha224();
 extern const EVP_MD *X_EVP_sha256();
 extern const EVP_MD *X_EVP_sha384();
 extern const EVP_MD *X_EVP_sha512();
+extern const EVP_MD *X_EVP_sm3();
 extern int X_EVP_MD_size(const EVP_MD *md);
 extern int X_EVP_DigestInit_ex(EVP_MD_CTX *ctx, const EVP_MD *type, ENGINE *impl);
 extern int X_EVP_DigestUpdate(EVP_MD_CTX *ctx, const void *d, size_t cnt);

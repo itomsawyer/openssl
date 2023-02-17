@@ -40,6 +40,19 @@ static int go_write_bio_puts(BIO *b, const char *str) {
 
 /*
  ************************************************
+ * Tongsuo 8.3.2 or later
+ ************************************************
+ */
+
+#ifdef TONGSUO_VERSION_NUMBER
+const EVP_MD *X_EVP_sm3() {
+       return EVP_sm3();
+}
+#endif
+
+
+/*
+ ************************************************
  * v1.1.1 and later implementation
  ************************************************
  */
@@ -602,7 +615,7 @@ const EVP_MD *X_EVP_md5() {
 	return EVP_md5();
 }
 
-#ifndef TONGSUO_VERSION
+#ifndef TONGSUO_VERSION_NUMBER
 const EVP_MD *X_EVP_md4() {
 	return EVP_md4();
 }
