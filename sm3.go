@@ -28,6 +28,7 @@ import (
 
 const (
 	SM3_DIGEST_LENGTH = 32
+	SM3_CBLOCK        = 64
 )
 
 var _ hash.Hash = new(SM3Hash)
@@ -40,16 +41,26 @@ type SM3Hash struct {
 func NewSM3Hash() (*SM3Hash, error) { return NewSM3HashWithEngine(nil) }
 
 func NewSM3HashWithEngine(e *Engine) (*SM3Hash, error) {
+	h, err := newSM3HashWithEngine(e)
+	if err != nil {
+		return nil, err
+	}
+	h.Reset()
+	return h, nil
+}
+
+func newSM3HashWithEngine(e *Engine) (*SM3Hash, error) {
 	hash := &SM3Hash{engine: e}
 	hash.ctx = C.X_EVP_MD_CTX_new()
 	if hash.ctx == nil {
 		return nil, errors.New("openssl: sm3: unable to allocate ctx")
 	}
 	runtime.SetFinalizer(hash, func(hash *SM3Hash) { hash.Close() })
-	if err := hash.Reset(); err != nil {
-		return nil, err
-	}
 	return hash, nil
+}
+
+func (s *SM3Hash) BlockSize() int {
+	return SM3_CBLOCK
 }
 
 func (s *SM3Hash) Size() int {
@@ -63,40 +74,47 @@ func (s *SM3Hash) Close() {
 	}
 }
 
-func (s *SM3Hash) Reset() error {
-	if 1 != C.X_EVP_DigestInit_ex(s.ctx, C.X_EVP_sm3(), engineRef(s.engine)) {
-		return errors.New("openssl: sm3: cannot init digest ctx")
-	}
-	return nil
+func (s *SM3Hash) Reset() {
+	C.X_EVP_DigestInit_ex(s.ctx, C.X_EVP_sm3(), engineRef(s.engine))
 }
 
 func (s *SM3Hash) Write(p []byte) (n int, err error) {
 	if len(p) == 0 {
 		return 0, nil
 	}
-	if 1 != C.X_EVP_DigestUpdate(s.ctx, unsafe.Pointer(&p[0]),
-		C.size_t(len(p))) {
+	if 1 != C.X_EVP_DigestUpdate(s.ctx, unsafe.Pointer(&p[0]), C.size_t(len(p))) {
 		return 0, errors.New("openssl: sm3: cannot update digest")
 	}
 	return len(p), nil
 }
 
-func (s *SM3Hash) Sum() (result [32]byte, err error) {
-	if 1 != C.X_EVP_DigestFinal_ex(s.ctx,
-		(*C.uchar)(unsafe.Pointer(&result[0])), nil) {
-		return result, errors.New("openssl: sm3: cannot finalize ctx")
+func (s *SM3Hash) Sum(in []byte) []byte {
+	hash, err := NewSM3HashWithEngine(s.engine)
+	if err != nil {
+		panic("NewSM3Hash fail " + err.Error())
 	}
-	return result, s.Reset()
+
+	if C.X_EVP_MD_CTX_copy_ex(hash.ctx, s.ctx) == 0 {
+		panic("NewSM3Hash X_EVP_MD_CTX_copy_ex fail")
+	}
+
+	result := hash.checkSum()
+	return append(in, result[:]...)
 }
 
-func SM3(data []byte) (result [32]byte, err error) {
-	hash, err := NewSM3Hash()
-	if err != nil {
-		return result, err
-	}
-	defer hash.Close()
-	if _, err := hash.Write(data); err != nil {
-		return result, err
-	}
-	return hash.Sum()
+func (s *SM3Hash) checkSum() (result [SM3_DIGEST_LENGTH]byte) {
+	C.X_EVP_DigestFinal_ex(s.ctx, (*C.uchar)(unsafe.Pointer(&result[0])), nil)
+	return result
+}
+
+func SM3Sum(data []byte) (result [SM3_DIGEST_LENGTH]byte) {
+	C.X_EVP_Digest(
+		unsafe.Pointer(&data[0]),
+		C.size_t(len(data)),
+		(*C.uchar)(unsafe.Pointer(&result[0])),
+		nil,
+		C.X_EVP_sm3(),
+		nil,
+	)
+	return
 }

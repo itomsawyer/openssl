@@ -61,6 +61,14 @@ const EVP_MD *X_EVP_sm3() {
 const int X_ED25519_SUPPORT = 1;
 int X_EVP_PKEY_ED25519 = EVP_PKEY_ED25519;
 
+
+
+int X_EVP_Digest(const void *data, size_t count,
+		unsigned char *md, unsigned int *size,
+		const EVP_MD *type, ENGINE *impl){
+	return EVP_Digest(data, count, md, size, type, impl);
+}
+
 int X_EVP_DigestSignInit(EVP_MD_CTX *ctx, EVP_PKEY_CTX **pctx,
 		const EVP_MD *type, ENGINE *e, EVP_PKEY *pkey){
 	return EVP_DigestSignInit(ctx, pctx, type, e, pkey);
@@ -127,6 +135,10 @@ void* X_BIO_get_data(BIO* bio) {
 
 EVP_MD_CTX* X_EVP_MD_CTX_new() {
 	return EVP_MD_CTX_new();
+}
+
+int X_EVP_MD_CTX_copy_ex(EVP_MD_CTX *out, const EVP_MD_CTX *in) {
+	return EVP_MD_CTX_copy_ex(out, in);
 }
 
 void X_EVP_MD_CTX_free(EVP_MD_CTX* ctx) {
@@ -651,6 +663,10 @@ int X_EVP_MD_size(const EVP_MD *md) {
 
 int X_EVP_DigestInit_ex(EVP_MD_CTX *ctx, const EVP_MD *type, ENGINE *impl) {
 	return EVP_DigestInit_ex(ctx, type, impl);
+}
+
+int X_EVP_DigestInit_ex2(EVP_MD_CTX *ctx, const EVP_MD *type, const OSSL_PARAM params[]) {
+	return EVP_DigestInit_ex2(ctx, type, params);
 }
 
 int X_EVP_DigestUpdate(EVP_MD_CTX *ctx, const void *d, size_t cnt) {
