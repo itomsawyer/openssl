@@ -58,6 +58,11 @@ extern const SSL_METHOD *X_SSLv3_method();
 extern const SSL_METHOD *X_TLSv1_method();
 extern const SSL_METHOD *X_TLSv1_1_method();
 extern const SSL_METHOD *X_TLSv1_2_method();
+#ifdef BABASSL_VERSION_NUMBER
+extern const SSL_METHOD *X_NTLS_method();
+extern const SSL_METHOD *X_NTLS_client_method();
+extern const SSL_METHOD *X_NTLS_server_method();
+#endif
 
 #if defined SSL_CTRL_SET_TLSEXT_HOSTNAME
 extern int sni_cb(SSL *ssl_conn, int *ad, void *arg);
@@ -66,6 +71,9 @@ extern int X_SSL_verify_cb(int ok, X509_STORE_CTX* store);
 
 /* SSL_CTX methods */
 extern int X_SSL_CTX_new_index();
+#ifdef BABASSL_VERSION_NUMBER
+extern void X_SSL_CTX_enable_ntls(SSL_CTX* ctx);
+#endif
 extern long X_SSL_CTX_set_options(SSL_CTX* ctx, long options);
 extern long X_SSL_CTX_clear_options(SSL_CTX* ctx, long options);
 extern long X_SSL_CTX_get_options(SSL_CTX* ctx);

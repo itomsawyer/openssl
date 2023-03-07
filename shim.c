@@ -468,6 +468,7 @@ const SSL_METHOD *X_SSLv23_method() {
 	return SSLv23_method();
 }
 
+
 const SSL_METHOD *X_SSLv3_method() {
 #ifndef OPENSSL_NO_SSL3_METHOD
 	return SSLv3_method();
@@ -496,8 +497,22 @@ const SSL_METHOD *X_TLSv1_2_method() {
 #endif
 }
 
+const SSL_METHOD *X_NTLS_method() {
+	return NTLS_method();
+}
+const SSL_METHOD *X_NTLS_client_method() {
+	return NTLS_client_method();
+}
+const SSL_METHOD *X_NTLS_server_method() {
+	return NTLS_server_method();
+}
+
 int X_SSL_CTX_new_index() {
 	return SSL_CTX_get_ex_new_index(0, NULL, NULL, NULL, NULL);
+}
+
+void X_SSL_CTX_enable_ntls(SSL_CTX* ctx) {
+	return SSL_CTX_enable_ntls(ctx);
 }
 
 long X_SSL_CTX_set_options(SSL_CTX* ctx, long options) {

@@ -21,6 +21,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"runtime"
 	"sync"
@@ -75,15 +76,17 @@ const (
 	TLSv1   SSLVersion = 0x03
 	TLSv1_1 SSLVersion = 0x04
 	TLSv1_2 SSLVersion = 0x05
+	NTLS    SSLVersion = 0x06
 
 	// Make sure to disable SSLv2 and SSLv3 if you use this. SSLv3 is vulnerable
 	// to the "POODLE" attack, and SSLv2 is what, just don't even.
-	AnyVersion SSLVersion = 0x06
+	AnyVersion SSLVersion = 0x01
 )
 
 // NewCtxWithVersion creates an SSL context that is specific to the provided
 // SSL version. See http://www.openssl.org/docs/ssl/SSL_CTX_new.html for more.
 func NewCtxWithVersion(version SSLVersion) (*Ctx, error) {
+	var enableNTLS bool
 	var method *C.SSL_METHOD
 	switch version {
 	case SSLv3:
@@ -94,13 +97,27 @@ func NewCtxWithVersion(version SSLVersion) (*Ctx, error) {
 		method = C.X_TLSv1_1_method()
 	case TLSv1_2:
 		method = C.X_TLSv1_2_method()
+	case NTLS:
+		method = C.X_NTLS_method()
+		enableNTLS = true
 	case AnyVersion:
 		method = C.X_SSLv23_method()
 	}
 	if method == nil {
 		return nil, errors.New("unknown ssl/tls version")
 	}
-	return newCtx(method)
+
+	c, err := newCtx(method)
+	if err != nil {
+		return nil, err
+	}
+
+	if enableNTLS {
+		log.Println("enable ntls")
+		C.X_SSL_CTX_enable_ntls(c.ctx)
+	}
+
+	return c, nil
 }
 
 // NewCtx creates a context that supports any TLS version 1.0 and newer.
