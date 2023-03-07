@@ -665,10 +665,6 @@ int X_EVP_DigestInit_ex(EVP_MD_CTX *ctx, const EVP_MD *type, ENGINE *impl) {
 	return EVP_DigestInit_ex(ctx, type, impl);
 }
 
-int X_EVP_DigestInit_ex2(EVP_MD_CTX *ctx, const EVP_MD *type, const OSSL_PARAM params[]) {
-	return EVP_DigestInit_ex2(ctx, type, params);
-}
-
 int X_EVP_DigestUpdate(EVP_MD_CTX *ctx, const void *d, size_t cnt) {
 	return EVP_DigestUpdate(ctx, d, cnt);
 }
