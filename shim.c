@@ -40,11 +40,11 @@ static int go_write_bio_puts(BIO *b, const char *str) {
 
 /*
  ************************************************
- * Tongsuo 8.3.2 or later
+ * Tongsuo 8.3.2 or prior
  ************************************************
  */
 
-#ifdef TONGSUO_VERSION_NUMBER
+#ifdef BABASSL_VERSION_NUMBER
 const EVP_MD *X_EVP_sm3() {
        return EVP_sm3();
 }
